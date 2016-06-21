@@ -1289,6 +1289,7 @@ var supportedModes = {
     Diff:        ["diff|patch"],
     Dockerfile:  ["^Dockerfile"],
     Dot:         ["dot"],
+    Drools:      ["drl"],
     Dummy:       ["dummy"],
     DummySyntax: ["dummy"],
     Eiffel:      ["e|ge"],
@@ -1296,14 +1297,14 @@ var supportedModes = {
     Elixir:      ["ex|exs"],
     Elm:         ["elm"],
     Erlang:      ["erl|hrl"],
-    Forth:       ["frt|fs|ldr"],
+    Forth:       ["frt|fs|ldr|fth|4th"],
     Fortran:     ["f|f90"],
     FTL:         ["ftl"],
     Gcode:       ["gcode"],
     Gherkin:     ["feature"],
     Gitignore:   ["^.gitignore"],
     Glsl:        ["glsl|frag|vert"],
-    Gobstones:   ["gbs"], 
+    Gobstones:   ["gbs"],
     golang:      ["go"],
     Groovy:      ["groovy"],
     HAML:        ["haml"],
@@ -1387,6 +1388,7 @@ var supportedModes = {
     Toml:        ["toml"],
     Twig:        ["twig|swig"],
     Typescript:  ["ts|typescript|str"],
+    TSX:         ["tsx"],
     Vala:        ["vala"],
     VBScript:    ["vbs|vb"],
     Velocity:    ["vm"],
@@ -1936,8 +1938,11 @@ function saveDoc(name, callback) {
 }
 
 function upload(url, data, callback) {
-    url = net.qualifyURL(url);
-    if (!/https?:/.test(url))
+    var absUrl = net.qualifyURL(url);
+    if (/^file:/.test(absUrl))
+        absUrl = "http://localhost:8888/" + url;
+    url = absUrl
+    if (!/^https?:/.test(url))
         return callback(new Error("Unsupported url scheme"));
     var xhr = new XMLHttpRequest();
     xhr.open("PUT", url, true);
@@ -4440,9 +4445,9 @@ dom.importCssString(".normal-mode .ace_cursor{\
     { keys: '<C-[>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
     { keys: '<C-c>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
     { keys: 's', type: 'keyToKey', toKeys: 'cl', context: 'normal' },
-    { keys: 's', type: 'keyToKey', toKeys: 'xi', context: 'visual'},
+    { keys: 's', type: 'keyToKey', toKeys: 'c', context: 'visual'},
     { keys: 'S', type: 'keyToKey', toKeys: 'cc', context: 'normal' },
-    { keys: 'S', type: 'keyToKey', toKeys: 'dcc', context: 'visual' },
+    { keys: 'S', type: 'keyToKey', toKeys: 'VdO', context: 'visual' },
     { keys: '<Home>', type: 'keyToKey', toKeys: '0' },
     { keys: '<End>', type: 'keyToKey', toKeys: '$' },
     { keys: '<PageUp>', type: 'keyToKey', toKeys: '<C-b>' },
@@ -4535,6 +4540,7 @@ dom.importCssString(".normal-mode .ace_cursor{\
     { keys: 'v', type: 'action', action: 'toggleVisualMode' },
     { keys: 'V', type: 'action', action: 'toggleVisualMode', actionArgs: { linewise: true }},
     { keys: '<C-v>', type: 'action', action: 'toggleVisualMode', actionArgs: { blockwise: true }},
+    { keys: '<C-q>', type: 'action', action: 'toggleVisualMode', actionArgs: { blockwise: true }},
     { keys: 'gv', type: 'action', action: 'reselectLastSelection' },
     { keys: 'J', type: 'action', action: 'joinLines', isEdit: true },
     { keys: 'p', type: 'action', action: 'paste', isEdit: true, actionArgs: { after: true, isEdit: true }},
@@ -4988,7 +4994,7 @@ dom.importCssString(".normal-mode .ace_cursor{\
         exCommandDispatcher.map(lhs, rhs, ctx);
       },
       unmap: function(lhs, ctx) {
-        exCommandDispatcher.unmap(lhs, ctx || "normal");
+        exCommandDispatcher.unmap(lhs, ctx);
       },
       setOption: setOption,
       getOption: getOption,
@@ -10858,26 +10864,11 @@ var Autocomplete = function() {
     }.bind(this));
 
     this.tooltipTimer = lang.delayedCall(this.updateDocTooltip.bind(this), 50);
-    this.notifySelectTimer = lang.delayedCall(function () {
-        var popup = this.popup;
-        var selected = popup.getData(popup.getRow());
-
-        this.editor._emit("autocomplete-select", selected);
-    }.bind(this), 50);
-    this.notifyHoverTimer = lang.delayedCall(function () {
-        var popup = this.popup;
-        var hovered = popup.getData(popup.getHoveredRow());
-
-        this.editor._emit("autocomplete-hover", hovered);
-    }.bind(this), 50);
 };
 
 (function() {
 
     this.$init = function() {
-
-        console.log('initiii')
-
         this.popup = new AcePopup(document.body || document.documentElement);
         this.popup.on("click", function(e) {
             this.insertMatch();
@@ -10886,9 +10877,7 @@ var Autocomplete = function() {
         this.popup.focus = this.editor.focus.bind(this.editor);
         this.popup.on("show", this.tooltipTimer.bind(null, null));
         this.popup.on("select", this.tooltipTimer.bind(null, null));
-        this.popup.on("select", this.notifySelectTimer.bind(null, null));
         this.popup.on("changeHoverMarker", this.tooltipTimer.bind(null, null));
-        this.popup.on("changeHoverMarker", this.notifyHoverTimer.bind(null, null))
         return this.popup;
     };
 
@@ -10943,8 +10932,6 @@ var Autocomplete = function() {
             this.base.detach();
         this.activated = false;
         this.completions = this.base = null;
-
-        this.editor._emit('autocomplete-detach');
     };
 
     this.changeListener = function(e) {
@@ -11255,7 +11242,7 @@ var FilteredList = function(array, filterText) {
         var upper = needle.toUpperCase();
         var lower = needle.toLowerCase();
         loop: for (var i = 0, item; item = items[i]; i++) {
-            var caption = item.search || item.value || item.caption || item.snippet;
+            var caption = item.value || item.caption || item.snippet;
             if (!caption) continue;
             var lastIndex = -1;
             var matchMask = 0;
@@ -11838,7 +11825,7 @@ exports.commands = [{
 
 });
 
-define("kitchen-sink/demo",["require","exports","module","ace/lib/fixoldbrowsers","ace/multi_select","ace/ext/spellcheck","kitchen-sink/inline_editor","kitchen-sink/dev_util","kitchen-sink/file_drop","ace/config","ace/lib/dom","ace/lib/net","ace/lib/lang","ace/lib/useragent","ace/lib/event","ace/theme/textmate","ace/edit_session","ace/undomanager","ace/keyboard/hash_handler","ace/virtual_renderer","ace/editor","ace/ext/whitespace","kitchen-sink/doclist","ace/ext/modelist","ace/ext/themelist","kitchen-sink/layout","kitchen-sink/token_tooltip","kitchen-sink/util","ace/ext/elastic_tabstops_lite","ace/incremental_search","ace/worker/worker_client","ace/split","ace/keyboard/vim","ace/ext/statusbar","ace/ext/emmet","ace/snippets","ace/ext/language_tools","ace/ext/beautify"], function(require, exports, module) {
+define("kitchen-sink/demo",["require","exports","module","ace/lib/fixoldbrowsers","ace/multi_select","ace/ext/spellcheck","kitchen-sink/inline_editor","kitchen-sink/dev_util","kitchen-sink/file_drop","ace/config","ace/lib/dom","ace/lib/net","ace/lib/lang","ace/lib/useragent","ace/lib/event","ace/theme/textmate","ace/edit_session","ace/undomanager","ace/keyboard/hash_handler","ace/virtual_renderer","ace/editor","ace/ext/whitespace","kitchen-sink/doclist","ace/ext/modelist","ace/ext/themelist","kitchen-sink/layout","kitchen-sink/token_tooltip","kitchen-sink/util","ace/ext/elastic_tabstops_lite","ace/incremental_search","ace/worker/worker_client","ace/split","ace/keyboard/vim","ace/ext/statusbar","ace/ext/emmet","ace/snippets","ace/ext/language_tools","ace/ext/beautify","ace/keyboard/keybinding","ace/commands/command_manager"], function(require, exports, module) {
 "use strict";
 
 require("ace/lib/fixoldbrowsers");
@@ -12146,8 +12133,6 @@ function updateUIEditorOptions() {
     var editor = env.editor;
     var session = editor.session;
 
-    session.setTabSize(2);
-
     session.setFoldStyle(foldingEl.value);
 
     saveOption(docEl, session.name);
@@ -12368,23 +12353,57 @@ env.editSnippets = function() {
 require("ace/ext/language_tools");
 env.editor.setOptions({
     enableBasicAutocompletion: true,
-    enableLiveAutocompletion: true,
-    enableSnippets: false
-});
-
-env.editor.on('autocomplete-hover', function (item) {
-    console.log('hover ', item.name);
-});
-
-env.editor.on('autocomplete-select', function (item) {
-    console.log('selected ', item.name);
-});
-
-env.editor.on('autocomplete-detach', function () {
-    console.log('autocomplete-detach');
+    enableLiveAutocompletion: false,
+    enableSnippets: true
 });
 
 var beautify = require("ace/ext/beautify");
 env.editor.commands.addCommands(beautify.commands);
+
+var KeyBinding = require("ace/keyboard/keybinding").KeyBinding;
+var CommandManager = require("ace/commands/command_manager").CommandManager;
+var commandManager = new CommandManager();
+var kb = new KeyBinding({
+    commands: commandManager,
+    fake: true
+});
+event.addCommandKeyListener(document.documentElement, kb.onCommandKey.bind(kb));
+event.addListener(document.documentElement, "keyup", function(e) {
+    if (e.keyCode === 18) // do not trigger browser menu on windows
+        e.preventDefault();
+});
+commandManager.addCommands([{
+    name: "window-left",
+    bindKey: {win: "cmd-alt-left", mac: "ctrl-cmd-left"},
+    exec: function() {
+        moveFocus("left");
+    }
+}, {
+    name: "window-right",
+    bindKey: {win: "cmd-alt-right", mac: "ctrl-cmd-right"},
+    exec: function() {
+        moveFocus("right");
+    }
+}, {
+    name: "window-up",
+    bindKey: {win: "cmd-alt-up", mac: "ctrl-cmd-up"},
+    exec: function() {
+        moveFocus("up");
+    }
+}, {
+    name: "window-down",
+    bindKey: {win: "cmd-alt-down", mac: "ctrl-cmd-down"},
+    exec: function() {
+        moveFocus("down");
+    }
+}]);
+
+function moveFocus() {
+    var el = document.activeElement;
+    if (el == env.editor.textInput.getElement())
+        env.editor.cmdLine.focus();    
+    else
+        env.editor.focus();
+}
 
 });
