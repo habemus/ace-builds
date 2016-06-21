@@ -1306,11 +1306,26 @@ var Autocomplete = function() {
     }.bind(this));
 
     this.tooltipTimer = lang.delayedCall(this.updateDocTooltip.bind(this), 50);
+    this.notifySelectTimer = lang.delayedCall(function () {
+        var popup = this.popup;
+        var selected = popup.getData(popup.getRow());
+
+        this.editor._emit("autocomplete-select", selected);
+    }.bind(this), 50);
+    this.notifyHoverTimer = lang.delayedCall(function () {
+        var popup = this.popup;
+        var hovered = popup.getData(popup.getHoveredRow());
+
+        this.editor._emit("autocomplete-hover", hovered);
+    }.bind(this), 50);
 };
 
 (function() {
 
     this.$init = function() {
+
+        console.log('initiii')
+
         this.popup = new AcePopup(document.body || document.documentElement);
         this.popup.on("click", function(e) {
             this.insertMatch();
@@ -1319,7 +1334,9 @@ var Autocomplete = function() {
         this.popup.focus = this.editor.focus.bind(this.editor);
         this.popup.on("show", this.tooltipTimer.bind(null, null));
         this.popup.on("select", this.tooltipTimer.bind(null, null));
+        this.popup.on("select", this.notifySelectTimer.bind(null, null));
         this.popup.on("changeHoverMarker", this.tooltipTimer.bind(null, null));
+        this.popup.on("changeHoverMarker", this.notifyHoverTimer.bind(null, null))
         return this.popup;
     };
 
@@ -1374,6 +1391,8 @@ var Autocomplete = function() {
             this.base.detach();
         this.activated = false;
         this.completions = this.base = null;
+
+        this.editor._emit('autocomplete-detach');
     };
 
     this.changeListener = function(e) {
@@ -1684,7 +1703,7 @@ var FilteredList = function(array, filterText) {
         var upper = needle.toUpperCase();
         var lower = needle.toLowerCase();
         loop: for (var i = 0, item; item = items[i]; i++) {
-            var caption = item.value || item.caption || item.snippet;
+            var caption = item.search || item.value || item.caption || item.snippet;
             if (!caption) continue;
             var lastIndex = -1;
             var matchMask = 0;
