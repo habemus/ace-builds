@@ -960,7 +960,7 @@ exports.getDocumentHead = function(doc) {
     if (!doc)
         doc = document;
     return doc.head || doc.getElementsByTagName("head")[0] || doc.documentElement;
-};
+}
 
 exports.createElement = function(tag, ns) {
     return document.createElementNS ?
@@ -969,7 +969,7 @@ exports.createElement = function(tag, ns) {
 };
 
 exports.hasCssClass = function(el, name) {
-    var classes = (el.className || "").split(/\s+/g);
+    var classes = (el.className + "").split(/\s+/g);
     return classes.indexOf(name) !== -1;
 };
 exports.addCssClass = function(el, name) {
@@ -1360,7 +1360,7 @@ exports.isIE =
     
 exports.isOldIE = exports.isIE && exports.isIE < 9;
 exports.isGecko = exports.isMozilla = (window.Controllers || window.controllers) && window.navigator.product === "Gecko";
-exports.isOldGecko = exports.isGecko && parseInt((ua.match(/rv\:(\d+)/)||[])[1], 10) < 4;
+exports.isOldGecko = exports.isGecko && parseInt((ua.match(/rv:(\d+)/)||[])[1], 10) < 4;
 exports.isOpera = window.opera && Object.prototype.toString.call(window.opera) == "[object Opera]";
 exports.isWebKit = parseFloat(ua.split("WebKit/")[1]) || undefined;
 
@@ -1767,7 +1767,7 @@ exports.copyArray = function(array){
     var copy = [];
     for (var i=0, l=array.length; i<l; i++) {
         if (array[i] && typeof array[i] == "object")
-            copy[i] = this.copyObject( array[i] );
+            copy[i] = this.copyObject(array[i]);
         else 
             copy[i] = array[i];
     }
@@ -1785,14 +1785,12 @@ exports.deepCopy = function deepCopy(obj) {
         }
         return copy;
     }
-    var cons = obj.constructor;
-    if (cons === RegExp)
+    if (Object.prototype.toString.call(obj) !== "[object Object]")
         return obj;
     
-    copy = cons();
-    for (var key in obj) {
+    copy = {};
+    for (var key in obj)
         copy[key] = deepCopy(obj[key]);
-    }
     return copy;
 };
 
@@ -2221,10 +2219,11 @@ var TextInput = function(parentNode, host) {
         if (inComposition || !host.onCompositionStart || host.$readOnly) 
             return;
         inComposition = {};
+        inComposition.canUndo = host.session.$undoManager;
         host.onCompositionStart();
         setTimeout(onCompositionUpdate, 0);
         host.on("mousedown", onCompositionEnd);
-        if (!host.selection.isEmpty()) {
+        if (inComposition.canUndo && !host.selection.isEmpty()) {
             host.insert("");
             host.session.markUndoGroup();
             host.selection.clearSelection();
@@ -2241,7 +2240,8 @@ var TextInput = function(parentNode, host) {
         host.onCompositionUpdate(val);
         if (inComposition.lastValue)
             host.undo();
-        inComposition.lastValue = val;
+        if (inComposition.canUndo)
+            inComposition.lastValue = val;
         if (inComposition.lastValue) {
             var r = host.selection.getRange();
             host.insert(inComposition.lastValue);
@@ -2282,6 +2282,9 @@ var TextInput = function(parentNode, host) {
         host.removeListener("mousedown", onCompositionEnd);
         if (e.type == "compositionend" && c.range) {
             host.selection.setRange(c.range);
+        }
+        if (useragent.isChrome && useragent.isChrome >= 53) {
+          onInput();
         }
     };
     
@@ -2759,6 +2762,7 @@ function GutterHandler(mouseHandler) {
 
         tooltip.setHtml(tooltipAnnotation);
         tooltip.show();
+        editor._signal("showGutterTooltip", tooltip);
         editor.on("mousewheel", hideTooltip);
 
         if (mouseHandler.$tooltipFollowsMouse) {
@@ -2778,6 +2782,7 @@ function GutterHandler(mouseHandler) {
         if (tooltipAnnotation) {
             tooltip.hide();
             tooltipAnnotation = null;
+            editor._signal("hideGutterTooltip", tooltip);
             editor.removeEventListener("mousewheel", hideTooltip);
         }
     }
@@ -5864,6 +5869,8 @@ var CstyleBehaviour = function() {
                 var pair;
                 if (rightChar == quote) {
                     pair = stringBefore !== stringAfter;
+                    if (pair && /string\.end/.test(rightToken.type))
+                        pair = false;
                 } else {
                     if (stringBefore && !stringAfter)
                         return null; // wrap string with different quote
@@ -6683,7 +6690,7 @@ var Document = function(textOrLines) {
         return this.removeFullLines(firstRow, lastRow);
     };
     this.insertNewLine = function(position) {
-        console.warn("Use of document.insertNewLine is deprecated. Use insertMergedLines(position, [\'\', \'\']) instead.");
+        console.warn("Use of document.insertNewLine is deprecated. Use insertMergedLines(position, ['', '']) instead.");
         return this.insertMergedLines(position, ["", ""]);
     };
     this.insert = function(position, text) {
@@ -8305,7 +8312,7 @@ function Folding() {
                 this.removeFold(fold);
             else
                 this.expandFold(fold);
-            return;
+            return fold;
         }
 
         var range = this.getFoldWidgetRange(row, true);
@@ -8313,7 +8320,7 @@ function Folding() {
             fold = this.getFoldAt(range.start.row, range.start.column, 1);
             if (fold && range.isEqual(fold.range)) {
                 this.removeFold(fold);
-                return;
+                return fold;
             }
         }
         
@@ -8592,6 +8599,7 @@ var EditSession = function(text, mode) {
     this.$undoSelect = true;
 
     this.$foldData = [];
+    this.id = "session" + (++EditSession.$uid);
     this.$foldData.toString = function() {
         return this.join("\n");
     };
@@ -12663,7 +12671,7 @@ var Editor = function(renderer, session) {
             var indentString = lang.stringRepeat(" ", count);
         } else {
             var count = column % size;
-            while (line[range.start.column] == " " && count) {
+            while (line[range.start.column - 1] == " " && count) {
                 range.start.column--;
                 count--;
             }
@@ -14811,6 +14819,7 @@ var ScrollBar = function(parent) {
 var VScrollBar = function(parent, renderer) {
     ScrollBar.call(this, parent);
     this.scrollTop = 0;
+    this.scrollHeight = 0;
     renderer.$scrollbarWidth = 
     this.width = dom.scrollbarWidth(parent.ownerDocument);
     this.inner.style.width =
@@ -14824,7 +14833,11 @@ oop.inherits(VScrollBar, ScrollBar);
     this.classSuffix = '-v';
     this.onScroll = function() {
         if (!this.skipEvent) {
-            this.scrollTop = this.element.scrollTop / this.coeff;
+            this.scrollTop = this.element.scrollTop;
+            if (this.coeff != 1) {
+                var h = this.element.clientHeight / this.scrollHeight;
+                this.scrollTop = this.scrollTop * (1 - h) / (this.coeff - h);
+            }
             this._emit("scroll", {data: this.scrollTop});
         }
         this.skipEvent = false;
@@ -14837,6 +14850,7 @@ oop.inherits(VScrollBar, ScrollBar);
     };
     this.setInnerHeight = 
     this.setScrollHeight = function(height) {
+        this.scrollHeight = height;
         if (height > MAX_SCROLL_H) {
             this.coeff = MAX_SCROLL_H / height;
             height = MAX_SCROLL_H;
@@ -15633,6 +15647,7 @@ var VirtualRenderer = function(container, theme) {
         
         this.$loop.schedule(this.CHANGE_FULL);
         this.session.$setFontMetrics(this.$fontMetrics);
+        this.scrollBarV.scrollLeft = this.scrollBarV.scrollTop = null;
         
         this.onChangeNewLineMode = this.onChangeNewLineMode.bind(this);
         this.onChangeNewLineMode()
@@ -16538,8 +16553,8 @@ var VirtualRenderer = function(container, theme) {
         function afterLoad(module) {
             if (_self.$themeId != theme)
                 return cb && cb();
-            if (!module.cssClass)
-                return;
+            if (!module || !module.cssClass)
+                throw new Error("couldn't load module " + theme + " or it didn't call define");
             dom.importCssString(
                 module.cssText,
                 module.cssClass,
@@ -18601,7 +18616,7 @@ function LineWidgets(session) {
         if (!w.coverGutter) {
             w.el.style.zIndex = 3;
         }
-        if (!w.pixelHeight) {
+        if (w.pixelHeight == null) {
             w.pixelHeight = w.el.offsetHeight;
         }
         if (w.rowCount == null) {
@@ -19027,14 +19042,13 @@ exports.createEditSession = function(text, mode) {
 }
 exports.EditSession = EditSession;
 exports.UndoManager = UndoManager;
-exports.version = "1.2.3";
+exports.version = "1.2.5";
 });
             (function() {
                 ace.require(["ace/ace"], function(a) {
                     if (a) {
                         a.config.init(true);
-                        if (!a.define)
-                            a.define = ace.define;
+                        a.define = ace.define;
                     }
                     if (!window.ace)
                         window.ace = a;

@@ -216,7 +216,7 @@ var JavaScriptHighlightRules = function(options) {
         "keyword":
             "const|yield|import|get|set|async|await|" +
             "break|case|catch|continue|default|delete|do|else|finally|for|function|" +
-            "if|in|instanceof|new|return|switch|throw|try|typeof|let|var|while|with|debugger|" +
+            "if|in|of|instanceof|new|return|switch|throw|try|typeof|let|var|while|with|debugger|" +
             "__parent__|__count__|escape|unescape|with|__proto__|" +
             "class|enum|extends|super|export|implements|private|public|interface|package|protected|static",
         "storage.type":
@@ -322,7 +322,7 @@ var JavaScriptHighlightRules = function(options) {
                 next  : "property"
             }, {
                 token : "keyword.operator",
-                regex : /--|\+\+|\.{3}|===|==|=|!=|!==|<+=?|>+=?|!|&&|\|\||\?\:|[!$%&*+\-~\/^]=?/,
+                regex : /--|\+\+|\.{3}|===|==|=|!=|!==|<+=?|>+=?|!|&&|\|\||\?:|[!$%&*+\-~\/^]=?/,
                 next  : "start"
             }, {
                 token : "punctuation.operator",
@@ -1171,7 +1171,7 @@ oop.inherits(Mode, TextMode);
         }
 
         if (state == "start" || state == "no_regex") {
-            var match = line.match(/^.*(?:\bcase\b.*\:|[\{\(\[])\s*$/);
+            var match = line.match(/^.*(?:\bcase\b.*:|[\{\(\[])\s*$/);
             if (match) {
                 indent += tab;
             }
@@ -2299,7 +2299,7 @@ var HtmlCompletions = function() {
         if (is(token, "attribute-value"))
             return this.getAttributeValueCompletions(state, session, pos, prefix);
         var line = session.getLine(pos.row).substr(0, pos.column);
-        if (/&[A-z]*$/i.test(line))
+        if (/&[a-z]*$/i.test(line))
             return this.getHTMLEntityCompletions(state, session, pos, prefix);
 
         return [];
@@ -2523,7 +2523,7 @@ var RubyHighlightRules = function() {
     );
 
     var builtinVariables = (
-        "\$DEBUG|\$defout|\$FILENAME|\$LOAD_PATH|\$SAFE|\$stdin|\$stdout|\$stderr|\$VERBOSE|" +
+        "$DEBUG|$defout|$FILENAME|$LOAD_PATH|$SAFE|$stdin|$stdout|$stderr|$VERBOSE|" +
         "$!|root_url|flash|session|cookies|params|request|response|logger|self"
     );
 
@@ -2573,7 +2573,7 @@ var RubyHighlightRules = function() {
                     regex : /\\(?:[nsrtvfbae'"\\]|c.|C-.|M-.(?:\\C-.)?|[0-7]{3}|x[\da-fA-F]{2}|u[\da-fA-F]{4})/
                 }, {
                     token : "paren.start",
-                    regex : /\#{/,
+                    regex : /#{/,
                     push  : "start"
                 }, {
                     token : "string.end",
@@ -2590,7 +2590,7 @@ var RubyHighlightRules = function() {
                     regex : /\\(?:[nsrtvfbae'"\\]|c.|C-.|M-.(?:\\C-.)?|[0-7]{3}|x[\da-fA-F]{2}|u[\da-fA-F]{4})/
                 }, {
                     token : "paren.start",
-                    regex : /\#{/,
+                    regex : /#{/,
                     push  : "start"
                 }, {
                     token : "string.end",
@@ -2911,7 +2911,7 @@ var EjsHighlightRules = function(start, end) {
         });
     }
     
-    this.embedRules(JavaScriptHighlightRules, "ejs-", [{
+    this.embedRules(new JavaScriptHighlightRules({jsx: false}).getRules(), "ejs-", [{
         token : "markup.list.meta.tag",
         regex : "-?" + end,
         next  : "pop"

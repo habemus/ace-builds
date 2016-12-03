@@ -42,6 +42,7 @@ outline: 1px solid red;\
 }\
 .ace_search_field {\
 background-color: white;\
+color: black;\
 border-right: 1px solid #cbcbcb;\
 border: 0 none;\
 -webkit-box-sizing: border-box;\
@@ -336,9 +337,7 @@ var SearchBox = function(editor, range, showReplaceForm) {
             wholeWord: this.wholeWordOption.checked,
             preventScroll: preventScroll
         });
-        var noMatch = !range && this.searchInput.value;
-        dom.setCssClass(this.searchBox, "ace_nomatch", noMatch);
-        this.editor._emit("findSearchBox", { match: !noMatch });
+        dom.setCssClass(this.searchBox, "ace_nomatch", !range && this.searchInput.value);
         this.highlight();
     };
     this.findNext = function() {

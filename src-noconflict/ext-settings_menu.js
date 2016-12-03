@@ -136,6 +136,7 @@ var supportedModes = {
     HAML:        ["haml"],
     Handlebars:  ["hbs|handlebars|tpl|mustache"],
     Haskell:     ["hs"],
+    Haskell_Cabal:     ["cabal"],
     haXe:        ["hx"],
     HTML:        ["html|htm|xhtml"],
     HTML_Elixir: ["eex|html.eex"],
@@ -151,8 +152,8 @@ var supportedModes = {
     JSP:         ["jsp"],
     JSX:         ["jsx"],
     Julia:       ["jl"],
+    Kotlin:      ["kt|kts"],
     LaTeX:       ["tex|latex|ltx|bib"],
-    Lean:        ["lean|hlean"],
     LESS:        ["less"],
     Liquid:      ["liquid"],
     Lisp:        ["lisp"],
@@ -185,7 +186,7 @@ var supportedModes = {
     Protobuf:    ["proto"],
     Python:      ["py"],
     R:           ["r"],
-    Razor:       ["cshtml"],
+    Razor:       ["cshtml|asp"],
     RDoc:        ["Rd"],
     RHTML:       ["Rhtml"],
     RST:         ["rst"],
@@ -294,7 +295,9 @@ var themeData = [
     ["Tomorrow Night Bright","tomorrow_night_bright"   ,  "dark"],
     ["Tomorrow Night 80s"   ,"tomorrow_night_eighties" ,  "dark"],
     ["Twilight"             ,"twilight"                ,  "dark"],
-    ["Vibrant Ink"          ,"vibrant_ink"             ,  "dark"]
+    ["Vibrant Ink"          ,"vibrant_ink"             ,  "dark"],
+    ["habemus"              ,"habemus"                 ,  "light"],
+    ["habemus dark"         ,"habemus-dark"            ,  "dark"],
 ];
 
 

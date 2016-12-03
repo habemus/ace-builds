@@ -72,7 +72,7 @@ var JavaScriptHighlightRules = function(options) {
         "keyword":
             "const|yield|import|get|set|async|await|" +
             "break|case|catch|continue|default|delete|do|else|finally|for|function|" +
-            "if|in|instanceof|new|return|switch|throw|try|typeof|let|var|while|with|debugger|" +
+            "if|in|of|instanceof|new|return|switch|throw|try|typeof|let|var|while|with|debugger|" +
             "__parent__|__count__|escape|unescape|with|__proto__|" +
             "class|enum|extends|super|export|implements|private|public|interface|package|protected|static",
         "storage.type":
@@ -178,7 +178,7 @@ var JavaScriptHighlightRules = function(options) {
                 next  : "property"
             }, {
                 token : "keyword.operator",
-                regex : /--|\+\+|\.{3}|===|==|=|!=|!==|<+=?|>+=?|!|&&|\|\||\?\:|[!$%&*+\-~\/^]=?/,
+                regex : /--|\+\+|\.{3}|===|==|=|!=|!==|<+=?|>+=?|!|&&|\|\||\?:|[!$%&*+\-~\/^]=?/,
                 next  : "start"
             }, {
                 token : "punctuation.operator",
@@ -1032,7 +1032,7 @@ var MarkdownHighlightRules = function() {
             regex : "^([ ]{0,3}\\[)([^\\]]+)(\\]:\\s*)([^ ]+)(\\s*(?:[\"][^\"]+[\"])?(\\s*))$"
         }, { // link by reference
             token : ["text", "string", "text", "constant", "text"],
-            regex : "(\\[)(" + escaped("]") + ")(\\]\s*\\[)("+ escaped("]") + ")(\\])"
+            regex : "(\\[)(" + escaped("]") + ")(\\]\\s*\\[)("+ escaped("]") + ")(\\])"
         }, { // link by url
             token : ["text", "string", "text", "markup.underline", "string", "text"],
             regex : "(\\[)(" +                                        // [
@@ -1336,7 +1336,7 @@ var Blocks = {
             regex : /([@\w\-_:+]+)|((^|\s)(?=\s*(\.|#)))/,
             push: [
                 Blocks.tagHead(/\./) ,
-                Blocks.tagHead(/\#/) ,
+                Blocks.tagHead(/#/) ,
                 Blocks.expression(),
                 Blocks.attribute(),
                 
@@ -1355,7 +1355,7 @@ var Blocks = {
                 ],
                 "multiline": [
                     Blocks.tagHead(/\./) ,
-                    Blocks.tagHead(/\#/) ,
+                    Blocks.tagHead(/#/) ,
                     Blocks.attribute(),
                     Blocks.expression(),
                     Token(token_LPARE, /[>\{]/),
@@ -1364,7 +1364,7 @@ var Blocks = {
                 ],
                 "block": [
                     Blocks.tagHead(/\./) ,
-                    Blocks.tagHead(/\#/) ,
+                    Blocks.tagHead(/#/) ,
                     Blocks.attribute(),
                     Blocks.expression(),
                     Token(token_LPARE, /\{/, [ next + "-start" ])
