@@ -40,6 +40,11 @@ background-color: #424242;\
 .ace-habemus-dark .ace_marker-layer .ace_selected-word {\
 border: 1px solid #A3A3A3;\
 }\
+.ace-habemus-dark .ace_marker-layer .ace_br15 {\
+border: 1px solid #666666;\
+margin: -1px 0 0 -1px;\
+background-color: #494949;\
+}\
 .ace-habemus-dark .ace_invisible {\
 color: #333333;\
 }\
@@ -99,6 +104,22 @@ color: #6B6B6B;\
 .ace-habemus-dark .ace_indent-guide {\
 border-right:1px dotted #3D3D3D;\
 margin-right:-1px;\
+}\
+::-webkit-scrollbar{\
+width: 8px;\
+height: 8px;\
+}\
+::-webkit-scrollbar-track {\
+background-color: transparent;\
+}\
+::-webkit-scrollbar-thumb {\
+background-color: #6d6d6d;\
+width: 4px;\
+border: 2px solid transparent;\
+border-radius: 5px;\
+}\
+::-webkit-scrollbar-corner {\
+background-color: transparent;\
 }\
 .ace-habemus-dark .ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {\
 background-color: #CAD6FA;\
