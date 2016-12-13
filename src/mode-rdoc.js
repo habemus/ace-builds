@@ -179,18 +179,18 @@ var MatchingBraceOutdent = function() {};
 exports.MatchingBraceOutdent = MatchingBraceOutdent;
 });
 
-define("ace/mode/rdoc",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/text_highlight_rules","ace/mode/rdoc_highlight_rules","ace/mode/matching_brace_outdent"], function(require, exports, module) {
+define("ace/mode/rdoc",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/rdoc_highlight_rules","ace/mode/matching_brace_outdent"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
 var TextMode = require("./text").Mode;
-var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 var RDocHighlightRules = require("./rdoc_highlight_rules").RDocHighlightRules;
 var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
 
 var Mode = function(suppressHighlighting) {
 	this.HighlightRules = RDocHighlightRules;
     this.$outdent = new MatchingBraceOutdent();
+    this.$behaviour = this.$defaultBehaviour;
 };
 oop.inherits(Mode, TextMode);
 

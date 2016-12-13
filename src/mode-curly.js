@@ -695,14 +695,13 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("ace/mode/javascript",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/javascript_highlight_rules","ace/mode/matching_brace_outdent","ace/range","ace/worker/worker_client","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle"], function(require, exports, module) {
+define("ace/mode/javascript",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/javascript_highlight_rules","ace/mode/matching_brace_outdent","ace/worker/worker_client","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
 var TextMode = require("./text").Mode;
 var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
 var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var Range = require("../range").Range;
 var WorkerClient = require("../worker/worker_client").WorkerClient;
 var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
 var CStyleFoldMode = require("./folding/cstyle").FoldMode;
@@ -2472,13 +2471,12 @@ exports.CurlyHighlightRules = CurlyHighlightRules;
 
 });
 
-define("ace/mode/curly",["require","exports","module","ace/lib/oop","ace/mode/html","ace/mode/matching_brace_outdent","ace/mode/html_highlight_rules","ace/mode/folding/html","ace/mode/curly_highlight_rules"], function(require, exports, module) {
+define("ace/mode/curly",["require","exports","module","ace/lib/oop","ace/mode/html","ace/mode/matching_brace_outdent","ace/mode/folding/html","ace/mode/curly_highlight_rules"], function(require, exports, module) {
 "use strict";
 
 var oop = require("../lib/oop");
 var HtmlMode = require("./html").Mode;
 var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
-var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
 var HtmlFoldMode = require("./folding/html").FoldMode;
 var CurlyHighlightRules = require("./curly_highlight_rules").CurlyHighlightRules;
 

@@ -110,16 +110,16 @@ width: 8px;\
 height: 8px;\
 }\
 ::-webkit-scrollbar-track {\
-background-color: transparent;\
+background-color: #292929;\
 }\
 ::-webkit-scrollbar-thumb {\
 background-color: #6d6d6d;\
 width: 4px;\
-border: 2px solid transparent;\
+border: 2px solid #292929;\
 border-radius: 5px;\
 }\
 ::-webkit-scrollbar-corner {\
-background-color: transparent;\
+background-color: #292929;\
 }\
 .ace-habemus-dark .ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {\
 background-color: #CAD6FA;\
