@@ -13,7 +13,7 @@ background: #626262;\
 .ace-habemus-dark {\
 background-color: #292929;\
 color: #EAEAEA;\
-font-family: 'Monaco';\
+font-family: 'Monaco', Monospace, Sans-Serif;\
 }\
 .ace-habemus-dark .ace_cursor {\
 color: #EAEAEA;\
@@ -121,46 +121,51 @@ border-radius: 5px;\
 ::-webkit-scrollbar-corner {\
 background-color: #292929;\
 }\
-.ace-habemus-dark .ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {\
-background-color: #CAD6FA;\
+.ace-habemus-dark.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {\
+background-color: #474747;\
 z-index: 1;\
 }\
-.ace-habemus-dark .ace_editor.ace_autocomplete .ace_line-hover {\
-border: 1px solid #abbffe;\
+.ace-habemus-dark.ace_editor.ace_autocomplete .ace_line-hover {\
+border: none;\
 margin-top: -1px;\
-background: rgba(233,233,253,0.4);\
+background: #4F4F4F;\
 }\
-.ace-habemus-dark .ace_editor.ace_autocomplete .ace_line-hover {\
+.ace-habemus-dark.ace_editor.ace_autocomplete .ace_line-hover {\
 position: absolute;\
 z-index: 2;\
 }\
-.ace-habemus-dark .ace_editor.ace_autocomplete .ace_scroller {\
+.ace-habemus-dark.ace_editor.ace_autocomplete .ace_scroller {\
 background: none;\
 border: none;\
 box-shadow: none;\
 }\
 .ace_rightAlignedText {\
-color: gray;\
+color: #AFAFAF;\
 display: inline-block;\
 position: absolute;\
-right: 4px;\
+right: 0;\
+padding: 0 4px;\
 text-align: right;\
 z-index: -1;\
 }\
-.ace-habemus-dark .ace_editor.ace_autocomplete .ace_completion-highlight{\
-color: #000;\
-text-shadow: 0 0 0.01em;\
+.ace-habemus-dark.ace_editor.ace_autocomplete .ace_completion-highlight{\
+color: #EAEAEA;\
 }\
-.ace-habemus-dark .ace_editor.ace_autocomplete {\
+.ace-habemus-dark.ace_editor.ace_autocomplete {\
+font-family: 'Monaco', Monospace, Sans-Serif;\
 width: 280px;\
 z-index: 200000;\
-background: #fbfbfb;\
-color: #444;\
-border: 1px lightgray solid;\
+background: #232323;\
+color: #AFAFAF;\
+border: none;\
 position: fixed;\
-box-shadow: 2px 3px 5px rgba(0,0,0,.2);\
-line-height: 1.4;\
-}\");\
+box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.3);\
+line-height: 2;\
+font-size: 12px;\
+}\
+.ace-habemus-dark .ace-content .ace_layer.ace_text-layer {\
+padding: 0 8px;\
+}\
 ";
 
 var dom = require("../lib/dom");
